@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>revealingModulePattern</title>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.1.3/mustache.min.js"></script>
+</head>
+<body>
+	<div id="peopleModule"><h1>People</h1>
+            <input placeholder="name" type="text">
+            <button id="addPerson">Add Person</button>
+            <ul id="people">
+                <script id="people-template" type="text/template">
+                    {{#people}}
+                        <li>
+                            <span>{{.}}</span>
+                            <i class="del">X</i>
+                        </li>
+                    {{/people}}
+                </script>
+            </ul>
+
+        </div>
+</body>
+
+
+
+<script>
+var people = (function(){
+    var people = ['Will', 'Steve'];
+
+    //cache DOM
+    var $el = $('#peopleModule');
+    var $button = $el.find('button');
+    var $input = $el.find('input');
+    var $ul = $el.find('ul');
+    var template = $el.find('#people-template').html();
+
+    //bind events
+    $button.on('click', addPerson);
+    $ul.delegate('i.del', 'click', deletePerson);
+
+    _render();
+
+    function _render() {
+       $ul.html(Mustache.render(template, {people: people}));
+    }
+
+    function addPerson(value) {
+        var name = (typeof value === "string") ? value : $input.val();
+        people.push(name);
+        _render();
+        $input.val('');
+    }
+
+    function deletePerson(event) {
+        var i;
+        if (typeof event === "number") {
+            i = event;
+        } else {
+            var $remove = $(event.target).closest('li');
+            i = $ul.find('li').index($remove);
+        }
+        people.splice(i, 1);
+        _render();
+    }
+
+    return {
+        addPerson: addPerson,
+        deletePerson: deletePerson
+    };
+
+})();
+
+//people.addPerson("Jake");
+//people.deletePerson(0);
+</script>
+
+</html>
